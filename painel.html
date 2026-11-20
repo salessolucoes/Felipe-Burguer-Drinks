@@ -1256,7 +1256,7 @@ function renderAjustes() {
       <p style="font-size:12.5px;color:var(--cinza);margin-top:4px">Para criar uma categoria nova, digite o nome dela no campo "Categoria" ao cadastrar ou editar um produto. Aqui você só escolhe a ordem.</p>
     </div>
     <div class="cartao"><h2>Destaques do cardápio</h2>
-      <p style="font-size:12.5px;color:var(--cinza)">Fotos que passam no topo do cardápio. Escolha um produto e o cliente toca na foto e vai direto nele para pedir. Sem produto, a foto aparece só para enfeitar.</p>
+      <p style="font-size:12.5px;color:var(--cinza)">Fotos que passam no topo do cardápio. Escolha o produto de cada foto: o cliente toca na foto e já abre a compra. Foto sem produto não aparece no cardápio.</p>
       <div id="listaDest"></div>
       <label class="btn btn-l btn-pq" style="margin-top:10px;display:inline-flex;cursor:pointer">+ Adicionar foto<input type="file" accept="image/*" id="destArq" multiple hidden></label>
       <span id="destMsg" style="font-size:12.5px;color:var(--cinza);margin-left:8px"></span>
@@ -1539,7 +1539,7 @@ function renderDest() {
   const prods = D.produtos.slice().sort((a, b) => (a.categoria || '').localeCompare(b.categoria || '') || a.nome.localeCompare(b.nome));
   box.innerHTML = L.length ? L.map((d, i) => `<div class="dest-l"><img src="${esc(d.foto)}" alt="">
     <div class="dc"><input class="campo" data-dest="${i}" data-dk="titulo" value="${esc(d.titulo || '')}" maxlength="40" placeholder="Título (opcional)">
-      <select class="campo" data-dest="${i}" data-dk="produto"><option value="">Só a foto (sem produto)</option>${prods.map(p => `<option value="${p.id}" ${p.id === d.produto ? 'selected' : ''}>${esc(p.categoria ? p.categoria + ' · ' : '')}${esc(p.nome)}</option>`).join('')}</select></div>
+      <select class="campo" data-dest="${i}" data-dk="produto"><option value="">— escolha o produto —</option>${prods.map(p => `<option value="${p.id}" ${p.id === d.produto ? 'selected' : ''}>${esc(p.categoria ? p.categoria + ' · ' : '')}${esc(p.nome)}</option>`).join('')}</select></div>
     <div class="db"><button type="button" data-dsobe="${i}" title="Subir" ${i ? '' : 'disabled'}>↑</button><button type="button" data-ddel="${i}" title="Remover">✕</button></div></div>`).join('')
     : '<p style="font-size:13px;color:var(--cinza);padding:6px 0">Nenhum destaque ainda.</p>';
 }

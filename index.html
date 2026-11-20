@@ -12,14 +12,14 @@
 <meta property="og:url" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/">
 <meta property="og:title" content="Felipe Burguer Drinks | Cardápio Digital 🍔🍕">
 <meta property="og:description" content="Eleito o melhor da Região! Hambúrgueres feitos na hora, pizzas e massas. Peça pelo cardápio digital.">
-<meta property="og:image" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/img/og.jpg?v=1">
-<meta property="og:image:secure_url" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/img/og.jpg?v=1">
+<meta property="og:image" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/img/og.jpg?v=2">
+<meta property="og:image:secure_url" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/img/og.jpg?v=2">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Felipe Burguer Drinks — cardápio digital">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/img/og.jpg?v=1">
+<meta name="twitter:image" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/img/og.jpg?v=2">
 <meta name="theme-color" content="#141110">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="img/icone-192.png">
@@ -401,14 +401,33 @@ body{background-image:linear-gradient(172deg,transparent 0 120px,rgba(245,161,28
 .item .foto .sem-foto::before{content:"";position:absolute;left:-10%;right:-10%;top:58%;height:22%;background:rgba(245,161,28,.16);transform:rotate(-8deg)}
 .item-preco small{display:block;font:700 10px var(--t-corpo);letter-spacing:.6px;text-transform:uppercase;color:var(--suave);text-decoration:none}
 .alergia{margin-top:10px;font-size:12px;color:var(--suave)}
+
+/* ---------- Abertura (splash) com a logo oficial ---------- */
+#splash{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#fdc917;transition:opacity .45s ease,visibility .45s}
+#splash img{width:min(62vw,260px);height:auto;animation:spl-entra .7s cubic-bezier(.2,1.4,.4,1) both}
+#splash i{position:absolute;bottom:14%;left:50%;width:46px;height:5px;margin-left:-23px;border-radius:3px;background:rgba(20,17,16,.18);overflow:hidden}
+#splash i::after{content:"";position:absolute;inset:0;width:40%;background:#141110;border-radius:3px;animation:spl-barra 1s ease-in-out infinite}
+#splash.sai{opacity:0;visibility:hidden}
+@keyframes spl-entra{from{transform:scale(.6) rotate(-6deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes spl-barra{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+@media (prefers-reduced-motion:reduce){#splash img,#splash i::after{animation:none}}
+.topo-logo{box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 3px #fdc917}
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><img src="img/logo-vertical.png" alt=""><i></i></div>
+<script>
+(function () {   // some quando o cardápio aparece (ou em no máximo 4s)
+  const t0 = Date.now();
+  function sai() { const s = document.getElementById('splash'); if (s) { s.classList.add('sai'); setTimeout(() => s.remove(), 600); } }
+  const iv = setInterval(() => { if ((document.querySelector('.secao') && Date.now() - t0 > 900) || Date.now() - t0 > 4000) { clearInterval(iv); sai(); } }, 150);
+})();
+</script>
 
 <header class="hero">
   <div class="hero-in">
     <h1 class="sr" id="nomeLoja">Felipe Burguer Drinks</h1>
-    <div class="topo-logo"><img src="img/topo.png" alt="Felipe Burguer Drinks" width="770" height="290"></div>
+    <div class="topo-logo"><img src="img/topo.png?v=2" alt="Felipe Burguer Drinks" width="1000" height="387"></div>
     <div class="topo-app">
       <div class="topo-txt"><span class="selo-premio">Eleito o melhor da Região</span><span class="premios">🏆 Prêmio Comunica · Prêmio Inovare</span><p class="sr" id="slogan"></p></div>
       <a class="topo-ig" href="https://instagram.com/felipeburguerdrinks" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>
@@ -467,6 +486,9 @@ body{background-image:linear-gradient(172deg,transparent 0 120px,rgba(245,161,28
     <div class="bloco" id="blocoProt" hidden><h3><span id="protTitulo">Escolha a proteína</span><small id="protConta"></small></h3><div class="escolhas" id="protLista"></div></div>
     <div class="bloco" id="blocoAcomp" hidden><h3>Acompanhamentos</h3><p class="sub" style="margin:-4px 0 8px">Toque para marcar os que você quer.</p><div class="opcoes" id="acompLista"></div></div>
     <div class="bloco" id="blocoSabor" hidden><h3 id="saborTitulo">Sabor</h3><div class="opcoes" id="saborLista"></div></div>
+    <div class="bloco" id="blocoMeio" hidden><h3>Meio a meio <span style="font-weight:600;font-size:12px;color:var(--suave)">(opcional)</span></h3>
+      <p style="font-size:12.5px;color:var(--suave);margin:-2px 0 8px">Quer 2 sabores? Escolha o outro sabor. Vale o preço do sabor mais caro.</p>
+      <select id="meioSel" style="width:100%;padding:12px;border-radius:12px;background:var(--noite-3);color:var(--texto);border:1px solid rgba(255,255,255,.12);font:600 14px var(--t-corpo)"></select></div>
     <label class="campo">Alguma observação? <input id="itemObs" maxlength="120" placeholder="Ex.: sem cebola, molho à parte"></label>
     <div class="rodape-folha" style="display:flex;gap:12px;align-items:center">
       <div class="qtd"><button id="itemMenos" aria-label="Diminuir">−</button><span id="itemQtd">1</span><button id="itemMais" aria-label="Aumentar">+</button></div>
@@ -735,7 +757,7 @@ function categorias() {
   const r = c => ordem.indexOf(c) + 1 || (c === 'Combos' ? 0 : 999);   // combos vêm primeiro se o dono não definiu a ordem
   return cats.sort((a, b) => r(a) - r(b));
 }
-const ICONE = { 'Promoções': '🔥', 'Combos': '🎉', 'Hambúrgueres': '🍔', 'Acompanhamentos': '🍟', 'Adicionais': '➕', 'Pizzas': '🍕', 'Pizzas Doces': '🍫', 'Massas': '🍝', 'Bebidas': '🥤', 'Drinks': '🍹', 'Sobremesas': '🍰' };
+const ICONE = { 'Promoções': '🔥', 'Combos': '🎉', 'Hambúrgueres': '🍔', 'Acompanhamentos': '🍟', 'Adicionais': '➕', 'Pizzas': '🍕', 'Pizzas Doces': '🍫', 'Massas': '🍝', 'Bebidas': '🥤', 'Drinks': '🍹', 'Doses': '🥃', 'Cervejas': '🍺', 'Sucos': '🧃', 'Sobremesas': '🍰' };
 const ic = c => ICONE[c] ? `<span class="ic">${ICONE[c]}</span>` : '';
 const idCat = c => 'cat-' + norm(c).replace(/[^a-z0-9]+/g, '-');
 function qtdNoCarrinho(id) { return carrinho.turno === turno ? carrinho.linhas.filter(l => l.id === id).reduce((s, l) => s + l.qtd, 0) : 0; }
@@ -826,17 +848,26 @@ function garantirTurnoDoCarrinho() {
   if (!confirm(`Seu pedido atual é do ${nomeTurno(cfg(), carrinho.turno).toLowerCase()}. Começar um pedido novo para o ${nomeTurno(cfg(), turno).toLowerCase()}?`)) return false;
   carrinho = { turno, linhas: [] }; return true;
 }
-function addLinha(p, { qtd = 1, proteinas = [], sabor = '', obs = '', acomp = null, sem = [] } = {}) {
+// pizza meio a meio: 2 sabores do mesmo tipo, vale o preço do mais caro
+function ehPizza(p) { return /^pizza/i.test(norm(p.categoria || '')) && cfg().meio_a_meio !== false; }
+function precoLinha(p, sabor, meio) {
+  let v = sabor ? precoOpc(p, sabor) : precoDe(p);
+  const q = meio && D.produtos.find(x => x.id === meio);
+  if (q) { const tam = String(sabor || '').split('–')[0].trim(); const qo = (q.sabores || []).find(x => x.split('–')[0].trim() === tam); v = Math.max(v, qo ? precoOpc(q, qo) : precoDe(q)); }
+  return v;
+}
+function addLinha(p, { qtd = 1, proteinas = [], sabor = '', obs = '', acomp = null, sem = [], meio = '' } = {}) {
   if (!garantirTurnoDoCarrinho()) return false;
   if (p.conta_limite && cfg().limite && cfg().limite.ativo) {
     const r = restantes(turno);
     if (r <= 0) { toast('Esgotou por hoje.'); return false; }
     if (qtd > r) { toast(r === 1 ? 'Só resta 1 para hoje.' : `Só restam ${r} para hoje.`); return false; }
   }
-  const chave = [p.id, proteinas.slice().sort().join(','), sabor, obs, (acomp || []).join(',')].join('|');
+  const q2 = meio ? D.produtos.find(x => x.id === meio) : null; if (!q2) meio = '';
+  const chave = [p.id, proteinas.slice().sort().join(','), sabor, obs, (acomp || []).join(','), meio].join('|');
   const ex = carrinho.linhas.find(l => l.k === chave);
   if (ex) ex.qtd += qtd;
-  else carrinho.linhas.push({ k: chave, id: p.id, nome: p.nome, preco: sabor ? precoOpc(p, sabor) : precoDe(p), qtd, proteinas,
+  else carrinho.linhas.push({ k: chave, id: p.id, nome: q2 ? p.nome + ' / ' + q2.nome.replace(/^Pizza\s+/i, '') : p.nome, preco: precoLinha(p, sabor, meio), meio, qtd, proteinas,
     protNomes: proteinas.map(id => (D.proteinas.find(x => x.id === id) || {}).nome || ''), sabor, saborTit: p.opcao_titulo || '', obs, acomp, sem, lim: !!p.conta_limite });
   salvarCarrinho(); renderMenu(); atualizarBarra(); return true;
 }
@@ -853,7 +884,10 @@ function abrirItem(p) {
   if (!podePedir(turno)) return;
   if (!p.qtd_proteinas && !(p.sabores && p.sabores.length)) { if (addLinha(p)) toast(p.nome + ' adicionado'); return; }
   const acs = temAcomp(p) && cfg().escolher_acomp !== false ? listaAcomp(turno) : [];
-  itemAberto = p; itemEsc = { prot: {}, sabor: '', qtd: 1, acs, acomp: new Set() };
+  itemAberto = p; itemEsc = { prot: {}, sabor: '', qtd: 1, acs, acomp: new Set(), meio: '' };
+  const outros = ehPizza(p) ? D.produtos.filter(x => x.id !== p.id && x.categoria === p.categoria && x.ativo !== false && !x.esgotado) : [];
+  $('#blocoMeio').hidden = !outros.length;
+  $('#meioSel').innerHTML = '<option value="">Não, só 1 sabor</option>' + outros.map(x => `<option value="${x.id}">½ ${esc(x.nome.replace(/^Pizza\s+/i, ''))}</option>`).join('');
   $('#blocoAcomp').hidden = !acs.length;
   $('#acompLista').innerHTML = acs.map(a => `<button class="opcao" data-acomp="${esc(a)}" aria-pressed="false">${esc(a.charAt(0).toUpperCase() + a.slice(1))}</button>`).join('');
   $('#itemNome').textContent = p.nome;
@@ -868,6 +902,7 @@ function abrirItem(p) {
   $('#itemObs').value = ''; $('#itemErro').textContent = '';
   renderEscolhas(); abrir('#mItem');
 }
+document.addEventListener('change', e => { if (e.target.id === 'meioSel' && itemAberto) { itemEsc.meio = e.target.value; renderEscolhas(); } });
 function renderEscolhas() {
   const p = itemAberto, n = p.qtd_proteinas, tot = Object.values(itemEsc.prot).reduce((a, b) => a + b, 0);
   if (n) {
@@ -882,7 +917,7 @@ function renderEscolhas() {
     }).join('');
   }
   $('#itemQtd').textContent = itemEsc.qtd;
-  $('#btnAddItem').textContent = `Adicionar ${brl((itemEsc.sabor ? precoOpc(p, itemEsc.sabor) : precoMin(p)) * itemEsc.qtd)}`;
+  $('#btnAddItem').textContent = `Adicionar ${brl((itemEsc.sabor || itemEsc.meio ? precoLinha(p, itemEsc.sabor, itemEsc.meio) : precoMin(p)) * itemEsc.qtd)}`;
 }
 // escolheu todas as proteínas: desce sozinho para os acompanhamentos
 function irParaAcomp() {
@@ -896,7 +931,7 @@ function confirmarItem() {
   if (p.sabores && p.sabores.length && !itemEsc.sabor) { $('#itemErro').textContent = 'Escolha ' + (p.opcao_titulo ? p.opcao_titulo.toLowerCase() : 'o sabor') + '.'; return; }
   const acomp = itemEsc.acs.length ? itemEsc.acs.filter(a => itemEsc.acomp.has(a)) : null;
   const sem = itemEsc.acs.filter(a => !itemEsc.acomp.has(a));
-  if (addLinha(p, { qtd: itemEsc.qtd, proteinas: prots, sabor: itemEsc.sabor, obs: $('#itemObs').value.trim(), acomp, sem })) {
+  if (addLinha(p, { qtd: itemEsc.qtd, proteinas: prots, sabor: itemEsc.sabor, obs: $('#itemObs').value.trim(), acomp, sem, meio: itemEsc.meio || '' })) {
     fechar($('#mItem')); toast(p.nome + ' adicionado');
   }
 }
@@ -1028,7 +1063,7 @@ async function finalizar() {
     const r = await rpc('criar_pedido', { p_loja: L, p: {
       turno: carrinho.turno, agendado: sel.quando === 'agendar' ? $('#cHorario').value : '', cliente: nome, telefone: tel,
       tipo: sel.tipo, endereco, bairro: sel.tipo === 'entrega' ? bairroAtual() : '', pagamento: sel.pag, troco, cupom: cupom ? cupom.codigo : '', obs: $('#cObs').value.trim(),
-      itens: carrinho.linhas.map(l => ({ id: l.id, qtd: l.qtd, proteinas: l.proteinas, sabor: l.sabor, obs: l.obs, acomp: l.acomp || undefined }))
+      itens: carrinho.linhas.map(l => ({ id: l.id, qtd: l.qtd, proteinas: l.proteinas, sabor: l.sabor, obs: l.obs, acomp: l.acomp || undefined, meio: l.meio || undefined }))
     } });
     if (!r.ok) throw new Error(r.erro);
     ls.set(K.cli, { nome, telefone: tel || (ls.get(K.cli, {}).telefone || ''), endereco: $('#cEnd').value.trim(), bairro: bairroAtual(), comp: $('#cComp').value.trim(), ref: $('#cRef').value.trim(), tipo: sel.tipo });
@@ -1059,7 +1094,7 @@ function repetir() {
     const p = D.produtos.find(x => x.id === l.id);
     const protOk = (l.proteinas || []).every(id => protsDisp(turno).some(x => x.id === id));
     if (!p || motivoIndisp(p) || !doTurno(p, turno) || !protOk) { falta.push(l.nome); return; }
-    if (addLinha(p, { qtd: l.qtd, proteinas: l.proteinas || [], sabor: l.sabor || '', obs: l.obs || '', acomp: l.acomp || null, sem: l.sem || [] })) ok++;
+    if (addLinha(p, { qtd: l.qtd, proteinas: l.proteinas || [], sabor: l.sabor || '', obs: l.obs || '', acomp: l.acomp || null, sem: l.sem || [], meio: l.meio || '' })) ok++;
   });
   renderRepetir();
   if (falta.length) toast(`Não deu para repetir: ${falta.join(', ')}. Escolha de novo, por favor.`);

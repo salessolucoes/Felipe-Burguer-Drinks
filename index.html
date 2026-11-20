@@ -335,6 +335,14 @@ body{background-image:none}
 .pontos i{width:7px;height:7px;border-radius:9px;background:rgba(255,255,255,.22);transition:all .35s var(--ease)}
 .pontos i.on{width:22px;background:var(--rosa)}
 @media(min-width:760px){.banner{flex-basis:280px}}
+.banner.b-foto .arte{object-fit:cover}
+.banner.b-foto::after{content:"";position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(transparent,rgba(10,8,7,.85));z-index:1;pointer-events:none}
+.banner .b-tit{position:absolute;left:14px;right:14px;bottom:62px;z-index:2;text-align:left;font:400 22px/1.05 var(--t-letreiro);letter-spacing:.4px;text-transform:uppercase;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.banner .b-tit small{display:block;margin-top:4px;font:800 14px var(--t-corpo);letter-spacing:0;text-transform:none;color:var(--rosa)}
+.banner:not([data-banner]) .b-tit{bottom:16px}
+.banner:not([data-banner]){cursor:default}
+.item.pisca{box-shadow:0 0 0 3px var(--rosa),0 0 30px var(--rosa-glow);transition:box-shadow .3s}
+
 .dia{display:none}
 
 /* categorias com ícone */
@@ -412,7 +420,7 @@ body{background-image:linear-gradient(172deg,transparent 0 120px,rgba(245,161,28
     <p class="aviso-fechado" id="avisoFechado" hidden></p>
     <div><div class="turnos" id="turnos" role="group" aria-label="Turno do cardápio" hidden></div></div>
   </div>
-  <div class="banners" aria-label="Promoções">
+  <div class="banners" aria-label="Destaques">
     <div class="trilho" id="trilho"></div>
     <div class="pontos" id="pontos"></div>
   </div>
@@ -1345,12 +1353,20 @@ if (MESA || URLP.has('local')) {
 function renderBanners() {
   if (typeof D === 'undefined' || !D || !$('#trilho')) return;
   const BAN = window.__BAN || (window.__BAN = { sig: '' });
-  const ps = D.produtos.filter(p => p.categoria === 'Promoções' && p.foto && !p.esgotado);
-  const sig = ps.map(p => p.id).join(',');
+  // Destaques (painel > Ajustes): foto + produto opcional. Depois, as artes da categoria "Promoções".
+  const dest = ((D.config && D.config.destaques) || []).filter(d => d && d.foto && d.ativo !== false).map(d => {
+    const p = d.produto ? D.produtos.find(x => x.id === d.produto && x.ativo !== false) : null;
+    return { foto: d.foto, titulo: d.titulo || (p ? p.nome : ''), p: p && !p.esgotado ? p : null, tipo: 'foto' };
+  });
+  const promo = D.produtos.filter(p => p.categoria === 'Promoções' && p.foto && !p.esgotado).map(p => ({ foto: p.foto, titulo: '', p, tipo: 'arte' }));
+  const ps = dest.concat(promo);
+  const sig = JSON.stringify(ps.map(x => [x.foto, x.titulo, x.p && x.p.id]));
   $('.banners').hidden = !ps.length;
   if (sig === BAN.sig) return; BAN.sig = sig;
-  $('#trilho').innerHTML = ps.map((p, i) => `<button class="banner" data-banner="${p.id}" aria-label="${esc(p.nome)} — ${brl(precoDe(p))}">
-    <img class="fundo" src="${esc(p.foto)}" alt="" loading="${i < 2 ? 'eager' : 'lazy'}"><img class="arte" src="${esc(p.foto)}" alt="" loading="${i < 2 ? 'eager' : 'lazy'}"><span class="pedir">Quero esse +</span></button>`).join('');
+  $('#trilho').innerHTML = ps.map((x, i) => `<button class="banner ${x.tipo === 'foto' ? 'b-foto' : ''}" ${x.p ? `data-banner="${x.p.id}"` : 'tabindex="-1"'} aria-label="${esc(x.titulo || 'Destaque')}${x.p ? ' — ' + brl(precoMin(x.p)) : ''}">
+    <img class="fundo" src="${esc(x.foto)}" alt="" loading="${i < 2 ? 'eager' : 'lazy'}" onerror="this.closest('.banner').remove()"><img class="arte" src="${esc(x.foto)}" alt="" loading="${i < 2 ? 'eager' : 'lazy'}">
+    ${x.titulo ? `<span class="b-tit">${esc(x.titulo)}${x.p ? `<small>${temPrecoOpc(x.p) ? 'a partir de ' : ''}${brl(precoMin(x.p))}</small>` : ''}</span>` : ''}
+    ${x.p ? '<span class="pedir">Quero esse +</span>' : ''}</button>`).join('');
   $('#pontos').innerHTML = ps.length > 8 ? `<span class="contador"><b>1</b> / ${ps.length}</span>` : ps.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('');
 }
 (function () {
@@ -1370,7 +1386,11 @@ function renderBanners() {
   tr.addEventListener('click', e => {
     const b = e.target.closest('[data-banner]'); if (!b || !D) return;
     const p = D.produtos.find(x => x.id === b.dataset.banner);
-    if (p) abrirItem(p);
+    if (!p) return;
+    // leva até o produto no cardápio (fica piscando) para o cliente pedir
+    const card = $(`.secao .item [data-add="${p.id}"]`); const art = card && card.closest('.item');
+    if (art) { art.scrollIntoView({ behavior: 'smooth', block: 'center' }); art.classList.add('pisca'); setTimeout(() => art.classList.remove('pisca'), 2600); }
+    else abrirItem(p);
   });
 })();
 $('#busca').addEventListener('input', filtrar);

@@ -206,6 +206,12 @@ label.rot .campo{display:block;width:100%;margin-top:6px}
 @media(max-width:600px){.prod{flex-wrap:wrap}.prod .acoes{width:100%;justify-content:flex-end}}
 .chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600;font-size:14px}
 .chk input{width:18px;height:18px;accent-color:var(--carvao)}
+.dest-l{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linha)}
+.dest-l img{width:64px;height:80px;border-radius:10px;object-fit:cover;background:var(--fundo);flex:none}
+.dest-l .dc{flex:1;display:grid;gap:6px;min-width:0}
+.dest-l .dc .campo{margin:0;padding:8px 10px;font-size:13.5px}
+.dest-l .db{display:flex;flex-direction:column;gap:6px}
+.dest-l .db button{width:34px;height:34px;border-radius:10px;background:var(--fundo);font-weight:800}
 .foto-prev{margin-top:8px;display:flex;align-items:center;gap:12px}
 .fotos-grade{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
 .fotos-grade .f{position:relative;width:84px;height:84px}
@@ -1249,6 +1255,12 @@ function renderAjustes() {
       <label class="rot">Ordem das categorias no cardápio<input class="campo" data-aj="categorias" value="${esc((c.categorias || []).join(', '))}"></label>
       <p style="font-size:12.5px;color:var(--cinza);margin-top:4px">Para criar uma categoria nova, digite o nome dela no campo "Categoria" ao cadastrar ou editar um produto. Aqui você só escolhe a ordem.</p>
     </div>
+    <div class="cartao"><h2>Destaques do cardápio</h2>
+      <p style="font-size:12.5px;color:var(--cinza)">Fotos que passam no topo do cardápio. Escolha um produto e o cliente toca na foto e vai direto nele para pedir. Sem produto, a foto aparece só para enfeitar.</p>
+      <div id="listaDest"></div>
+      <label class="btn btn-l btn-pq" style="margin-top:10px;display:inline-flex;cursor:pointer">+ Adicionar foto<input type="file" accept="image/*" id="destArq" multiple hidden></label>
+      <span id="destMsg" style="font-size:12.5px;color:var(--cinza);margin-left:8px"></span>
+    </div>
     <div class="cartao"><h2>Funcionamento</h2>
       ${op('Receber pedidos pelo cardápio', 'Desligado, o cliente só vê o cardápio', sw('pedidos_ativos', c.pedidos_ativos !== false))}
       <label class="rot">Abertura da loja<select class="campo" data-aj="modo">
@@ -1329,7 +1341,7 @@ function renderAjustes() {
       <label class="rot">Repita a senha<input class="campo" id="sdRep" type="password" inputmode="numeric" minlength="6" maxlength="20" autocomplete="new-password" required></label></div>
       <button class="btn btn-s" style="margin-top:12px">Trocar senha do dono</button></form>
     </div>`;
-  renderCupons(); renderBairros(); atualizarBarraSalvar();
+  renderCupons(); renderBairros(); renderDest(); atualizarBarraSalvar();
   $('#formCupom').onsubmit = criarCupom;
   $('#formSenha').onsubmit = trocarSenha;
   $('#formSenhaDono').onsubmit = trocarSenhaDono;
@@ -1520,6 +1532,36 @@ window.addEventListener('beforeunload', e => { if (ajMudou()) { e.preventDefault
 
 
 /* ================= TAXA POR BAIRRO (Ajustes) ================= */
+/* ---------- Destaques (fotos no topo do cardápio, ligadas a um produto) ---------- */
+function renderDest() {
+  const box = $('#listaDest'); if (!box || !AJ) return;
+  const L = AJ.cfg.destaques = Array.isArray(AJ.cfg.destaques) ? AJ.cfg.destaques : [];
+  const prods = D.produtos.slice().sort((a, b) => (a.categoria || '').localeCompare(b.categoria || '') || a.nome.localeCompare(b.nome));
+  box.innerHTML = L.length ? L.map((d, i) => `<div class="dest-l"><img src="${esc(d.foto)}" alt="">
+    <div class="dc"><input class="campo" data-dest="${i}" data-dk="titulo" value="${esc(d.titulo || '')}" maxlength="40" placeholder="Título (opcional)">
+      <select class="campo" data-dest="${i}" data-dk="produto"><option value="">Só a foto (sem produto)</option>${prods.map(p => `<option value="${p.id}" ${p.id === d.produto ? 'selected' : ''}>${esc(p.categoria ? p.categoria + ' · ' : '')}${esc(p.nome)}</option>`).join('')}</select></div>
+    <div class="db"><button type="button" data-dsobe="${i}" title="Subir" ${i ? '' : 'disabled'}>↑</button><button type="button" data-ddel="${i}" title="Remover">✕</button></div></div>`).join('')
+    : '<p style="font-size:13px;color:var(--cinza);padding:6px 0">Nenhum destaque ainda.</p>';
+}
+document.addEventListener('input', e => { const el = e.target.closest('[data-dest]'); if (!el || !AJ) return; AJ.cfg.destaques[+el.dataset.dest][el.dataset.dk] = el.value; atualizarBarraSalvar(); });
+document.addEventListener('change', e => { const el = e.target.closest('[data-dest]'); if (!el || !AJ) return; AJ.cfg.destaques[+el.dataset.dest][el.dataset.dk] = el.value; atualizarBarraSalvar(); });
+document.addEventListener('click', e => {
+  if (!AJ) return; const L = AJ.cfg.destaques || [];
+  const up = e.target.closest('[data-dsobe]'), del = e.target.closest('[data-ddel]');
+  if (up) { const i = +up.dataset.dsobe; if (i > 0) { [L[i - 1], L[i]] = [L[i], L[i - 1]]; renderDest(); atualizarBarraSalvar(); } }
+  if (del) { L.splice(+del.dataset.ddel, 1); renderDest(); atualizarBarraSalvar(); }
+});
+document.addEventListener('change', async e => {
+  if (e.target.id !== 'destArq' || !AJ) return;
+  const fs = [...e.target.files]; e.target.value = '';
+  for (let i = 0; i < fs.length; i++) {
+    $('#destMsg').textContent = `Enviando foto ${i + 1} de ${fs.length}…`;
+    try { const blob = await B.reduzirImagem(fs[i], 1000); const url = await B.enviarFoto(sess.pin, blob);
+      AJ.cfg.destaques = AJ.cfg.destaques || []; AJ.cfg.destaques.push({ foto: url, titulo: '', produto: '' }); renderDest(); atualizarBarraSalvar(); }
+    catch (err) { toast('Não foi possível enviar a foto: ' + err.message, 'erro'); }
+  }
+  $('#destMsg').textContent = fs.length ? 'Escolha o produto de cada foto e toque em Salvar.' : '';
+});
 function renderBairros() {
   const el = $('#listaBairros'); if (!el || !AJ) return;
   const bs = Array.isArray(AJ.cfg.entrega.bairros) ? AJ.cfg.entrega.bairros : [];

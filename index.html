@@ -20,7 +20,7 @@
 <meta property="og:image:alt" content="Felipe Burguer Drinks — cardápio digital">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://salessolucoes.github.io/Felipe-Burguer-Drinks/img/og.jpg?v=2">
-<meta name="theme-color" content="#141110">
+<meta name="theme-color" content="#fdc917">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="img/icone-192.png">
 <link rel="apple-touch-icon" href="img/icone-192.png">
@@ -412,6 +412,46 @@ body{background-image:linear-gradient(172deg,transparent 0 120px,rgba(245,161,28
 @keyframes spl-barra{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
 @media (prefers-reduced-motion:reduce){#splash img,#splash i::after{animation:none}}
 .topo-logo{box-shadow:0 18px 40px rgba(0,0,0,.45),0 0 0 3px #fdc917}
+
+/* =========== TEMA AMARELO (cor da logo) =========== */
+:root{
+  --noite:#fdc917; --noite-2:#ffffff; --noite-3:#fff4c7;
+  --borda:rgba(20,17,16,.10); --borda-2:rgba(20,17,16,.16);
+  --texto:#141110; --suave:#5e5130;
+  --rosa:#c8231c; --rosa-2:#a81b15; --rosa-3:#e0352d; --rosa-glow:rgba(200,35,28,.28);
+  --ouro:#141110; --carvao:#141110;
+}
+html,body{background:#fdc917;color:#141110}
+body{background-image:none}
+.cats a.ativo,.btn-p,.opcao[aria-pressed=true],.modos button[aria-pressed=true]{color:#fff}
+.barra{color:#fff}
+.barra .n{background:#fff;color:var(--rosa)}
+.banner .pedir,.preco-dia b{color:#fff}
+.topo-logo{box-shadow:0 14px 30px rgba(20,17,16,.25),0 0 0 3px #141110}
+.topo-txt .selo-premio{color:#141110}
+.topo-txt .premios{color:#5e5130}
+.secao>h2{color:#141110}
+.secao>h2::after{background:#c8231c}
+.item{background:#fff;border-color:rgba(20,17,16,.08);box-shadow:0 6px 18px rgba(20,17,16,.10)}
+.item .foto{background:linear-gradient(160deg,#fff4c7,#ffe48a)}
+.item .foto .sem-foto::before{background:rgba(200,35,28,.10)}
+.item-preco{color:#c8231c}
+.rodape-marca{color:#141110}
+.rodape-marca span{color:#c8231c}
+#splash{background:#fdc917}
+.banner.b-foto::after{inset:0 0 auto 0;height:45%;background:linear-gradient(rgba(10,8,7,.75),transparent)}
+.banner.b-foto .b-tit{top:16px;bottom:auto}
+.banner .b-tit small{color:#fdc917!important}
+.cats{background:rgba(253,201,23,.94)!important;border-bottom:1px solid rgba(20,17,16,.12)!important;backdrop-filter:blur(10px)}
+.add-txt{color:#fff;background:#c8231c;border-color:#c8231c}
+.item .foto .selo-i,.selo-i{color:#fdc917!important;background:#141110!important}
+#toast{background:#141110;color:#fdc917}
+.status{background:#fff;border-color:rgba(20,17,16,.12)}
+.status.aberto{color:#0d6b34;border-color:rgba(13,107,52,.35)}
+.chip{background:#fff}
+.campo input,.campo textarea,.campo select,#meioSel{background:#fffbea!important;color:#141110!important;border-color:rgba(20,17,16,.18)!important}
+.campo input::placeholder,.campo textarea::placeholder,.busca input::placeholder{color:#8a7a4f}
+.busca{background:#fff}
 </style>
 </head>
 <body>
@@ -775,7 +815,7 @@ function renderMenu() {
         if (ind) acao = `<span class="tag">${ind}</span>`;
         else if (pode) acao = simples && q
           ? `<div class="qtd"><button data-menos="${p.id}" aria-label="Tirar um">−</button><span>${q}</span><button data-mais="${p.id}" aria-label="Adicionar mais um">+</button></div>`
-          : `${q ? `<span class="sub">${q} no pedido</span>` : ''}<button class="btn btn-p btn-add" data-add="${p.id}">${simples ? 'Adicionar' : 'Escolher'}</button>`;
+          : '';   // o botão "Adicionar" fica só embaixo do preço (sem o "+" repetido na foto)
         return `<article class="item${p.categoria === 'Promoções' ? ' promo' : ''} revela${window.__rev ? ' on' : ''}${q ? ' no-pedido' : ''}" data-busca="${esc(norm(p.nome + ' ' + (p.descricao || '') + ' ' + p.categoria))}">
           <div class="foto">
             ${p.foto ? `<button class="thumb-b" data-fotos="${p.id}" aria-label="Ver foto de ${esc(p.nome)}"><img class="thumb" src="${esc(p.foto)}" alt="" loading="lazy" onerror="this.parentNode.remove()"></button>` : ''}
@@ -786,7 +826,7 @@ function renderMenu() {
           <button class="item-c" ${pode && !ind ? `data-add="${p.id}"` : 'tabindex="-1"'}>
             <div class="linha-preco"><h3>${esc(p.nome)}</h3></div>
             <div class="item-base"><p>${esc(p.descricao || '')}</p>
-              <div class="item-pe"><span class="item-preco">${temPrecoOpc(p) ? '<small>a partir de</small>' : ''}${brl(precoMin(p))}</span>${pode && !ind ? '<span class="add-txt">Adicionar</span>' : ''}</div></div>
+              <div class="item-pe"><span class="item-preco">${temPrecoOpc(p) ? '<small>a partir de</small>' : ''}${brl(precoMin(p))}</span>${pode && !ind ? `<span class="add-txt">${q && !simples ? q + ' no pedido · +' : 'Adicionar'}</span>` : ''}</div></div>
           </button></article>`;
       }).join('')}</div></section>`).join('')
     : `<p class="vazio">Nenhum item neste turno ainda.</p>`;
@@ -880,9 +920,15 @@ function mudarSimples(id, d) {
 }
 
 /* ---------- escolher opções ---------- */
+// abre a janela do produto mesmo quando ele não tem opções (usado pelos destaques)
+function abrirCompra(p) {
+  if (!podePedir(turno)) return;
+  if (p.qtd_proteinas || (p.sabores && p.sabores.length)) return abrirItem(p);
+  abrirItem.__forcar = true; try { abrirItem(p); } finally { abrirItem.__forcar = false; }
+}
 function abrirItem(p) {
   if (!podePedir(turno)) return;
-  if (!p.qtd_proteinas && !(p.sabores && p.sabores.length)) { if (addLinha(p)) toast(p.nome + ' adicionado'); return; }
+  if (!abrirItem.__forcar && !p.qtd_proteinas && !(p.sabores && p.sabores.length)) { if (addLinha(p)) toast(p.nome + ' adicionado'); return; }
   const acs = temAcomp(p) && cfg().escolher_acomp !== false ? listaAcomp(turno) : [];
   itemAberto = p; itemEsc = { prot: {}, sabor: '', qtd: 1, acs, acomp: new Set(), meio: '' };
   const outros = ehPizza(p) ? D.produtos.filter(x => x.id !== p.id && x.categoria === p.categoria && x.ativo !== false && !x.esgotado) : [];
@@ -1393,8 +1439,12 @@ function renderBanners() {
     const p = d.produto ? D.produtos.find(x => x.id === d.produto && x.ativo !== false) : null;
     return { foto: d.foto, titulo: d.titulo || (p ? p.nome : ''), p: p && !p.esgotado ? p : null, tipo: 'foto' };
   });
+  // produtos marcados como "Destaque" no painel entram sozinhos (com a foto do produto)
+  const jaTem = new Set(dest.filter(x => x.p).map(x => x.p.id));
+  const marcados = D.produtos.filter(p => p.destaque && p.foto && p.ativo !== false && !p.esgotado && p.categoria !== 'Promoções' && !jaTem.has(p.id))
+    .map(p => ({ foto: p.foto, titulo: p.nome, p, tipo: 'foto' }));
   const promo = D.produtos.filter(p => p.categoria === 'Promoções' && p.foto && !p.esgotado).map(p => ({ foto: p.foto, titulo: '', p, tipo: 'arte' }));
-  const ps = dest.concat(promo);
+  const ps = dest.concat(marcados, promo);
   const sig = JSON.stringify(ps.map(x => [x.foto, x.titulo, x.p && x.p.id]));
   $('.banners').hidden = !ps.length;
   if (sig === BAN.sig) return; BAN.sig = sig;
@@ -1425,7 +1475,8 @@ function renderBanners() {
     // leva até o produto no cardápio (fica piscando) para o cliente pedir
     const card = $(`.secao .item [data-add="${p.id}"]`); const art = card && card.closest('.item');
     if (art) { art.scrollIntoView({ behavior: 'smooth', block: 'center' }); art.classList.add('pisca'); setTimeout(() => art.classList.remove('pisca'), 2600); }
-    else abrirItem(p);
+    // já abre para comprar: com opções (tamanho, sabor…) abre a janela; sem opções, a janela simples do produto
+    setTimeout(() => abrirCompra(p), art ? 650 : 0);
   });
 })();
 $('#busca').addEventListener('input', filtrar);

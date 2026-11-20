@@ -206,6 +206,7 @@ label.rot .campo{display:block;width:100%;margin-top:6px}
 @media(max-width:600px){.prod{flex-wrap:wrap}.prod .acoes{width:100%;justify-content:flex-end}}
 .chk{display:flex;align-items:center;gap:8px;margin-top:12px;font-weight:600;font-size:14px}
 .chk input{width:18px;height:18px;accent-color:var(--carvao)}
+.sw-rot{font-size:11px;font-weight:700;color:var(--cinza);text-align:right;line-height:1.1;max-width:62px}
 .dest-l{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linha)}
 .dest-l img{width:64px;height:80px;border-radius:10px;object-fit:cover;background:var(--fundo);flex:none}
 .dest-l .dc{flex:1;display:grid;gap:6px;min-width:0}
@@ -472,14 +473,14 @@ table.tab{width:100%;border-collapse:collapse;font-size:13.5px}
     <label class="rot">Descrição<input class="campo" id="pDesc" maxlength="300" placeholder="Ex.: 2 opções de proteína + acompanhamentos"></label>
     <div class="duas">
       <label class="rot">Preço (R$)<input class="campo" id="pPreco" inputmode="decimal" placeholder="0,00" required></label>
-      <label class="rot">Preço à noite <small style="font-weight:500;color:var(--cinza)">(só se for diferente)</small><input class="campo" id="pPrecoNoite" inputmode="decimal" placeholder="igual"></label>
+      <label class="rot" hidden style="display:none">Preço à noite <small style="font-weight:500;color:var(--cinza)">(só se for diferente)</small><input class="campo" id="pPrecoNoite" inputmode="decimal" placeholder="igual"></label>
       <label class="rot">Categoria<input class="campo" id="pCat" list="listaCats" required placeholder="Escolha ou digite uma nova"></label>
     </div>
     <datalist id="listaCats"></datalist>
-    <div class="rot">Aparece em</div>
-    <div style="display:flex;gap:18px"><label class="chk"><input type="checkbox" id="pAlmoco"> Almoço</label><label class="chk"><input type="checkbox" id="pNoite"> Noite</label></div>
+    <div class="rot" hidden style="display:none">Aparece em</div>
+    <div style="display:none;gap:18px"><label class="chk"><input type="checkbox" id="pAlmoco"> Almoço</label><label class="chk"><input type="checkbox" id="pNoite"> Noite</label></div>
     <div class="duas">
-      <label class="rot">Cliente escolhe proteínas?<select class="campo" id="pProt"><option value="0">Não</option><option value="1">Sim, 1 proteína</option><option value="2">Sim, até 2 proteínas</option><option value="3">Sim, até 3 proteínas</option><option value="4">Sim, até 4 proteínas</option><option value="5">Sim, até 5 proteínas</option></select></label>
+      <label class="rot" style="display:none">Cliente escolhe proteínas?<select class="campo" id="pProt"><option value="0">Não</option><option value="1">Sim, 1 proteína</option><option value="2">Sim, até 2 proteínas</option><option value="3">Sim, até 3 proteínas</option><option value="4">Sim, até 4 proteínas</option><option value="5">Sim, até 5 proteínas</option></select></label>
       <span></span>
     </div>
     <div class="rot" style="margin-top:14px">O cliente escolhe uma opção? <small style="font-weight:500;color:var(--cinza)">(sabor do suco, refri do combo… deixe vazio se não tiver)</small></div>
@@ -487,9 +488,9 @@ table.tab{width:100%;border-collapse:collapse;font-size:13.5px}
       <label class="rot" style="margin-top:4px">Nome da escolha<input class="campo" id="pOpTit" maxlength="30" placeholder="Ex.: Sabor, Bebida"></label>
       <label class="rot" style="margin-top:4px">Opções (separe por vírgula)<input class="campo" id="pSabores" placeholder="Ex.: Coca-Cola Lata, Guaraná Lata — ou com preço: Média – R$ 60, Grande – R$ 70"></label>
     </div>
-    <label class="chk"><input type="checkbox" id="pComAcomp"> Vem com acompanhamentos (arroz, feijão…) <small style="font-weight:500;color:var(--cinza)">— desmarque na porção de proteína</small></label>
-    <label class="chk"><input type="checkbox" id="pLimite"> Conta no limite diário de marmitas</label>
-    <label class="chk"><input type="checkbox" id="pDestaque"> Mostrar o preço na arte do dia</label>
+    <label class="chk" style="display:none"><input type="checkbox" id="pComAcomp"> Vem com acompanhamentos (arroz, feijão…) <small style="font-weight:500;color:var(--cinza)">— desmarque na porção de proteína</small></label>
+    <label class="chk" style="display:none"><input type="checkbox" id="pLimite"> Conta no limite diário de marmitas</label>
+    <label class="chk"><input type="checkbox" id="pDestaque"> ⭐ Destaque — aparece no carrossel do topo do cardápio <small style="font-weight:500;color:var(--cinza)">(precisa ter foto)</small></label>
     <div class="rot">Fotos <small style="font-weight:500;color:var(--cinza)">(até 5 · a primeira é a capa)</small></div>
     <div class="fotos-grade" id="pFotos"></div>
     <input type="file" id="pArquivo" accept="image/*" multiple hidden>
@@ -925,7 +926,7 @@ function renderProdutos() {
     if (!ps.length) return '';
     return `<h2 class="cat-tit">${esc(c)}</h2>` + ps.map(p => `<div class="prod ${p.ativo ? '' : 'off'}">
       ${p.foto ? `<img class="ft" src="${esc(p.foto)}" alt="" loading="lazy">` : `<span class="ft">${esc(p.nome.charAt(0))}</span>`}
-      <div class="c"><strong>${esc(p.nome)}</strong><small>${brl(p.preco)}${Number(p.preco_noite) > 0 ? ' (noite ' + brl(p.preco_noite) + ')' : ''} · ${textoTurnos(p)}${p.qtd_proteinas ? ` · escolhe ${p.qtd_proteinas > 1 ? 'até ' + p.qtd_proteinas + ' proteínas' : '1 proteína'}` : ''}${p.esgotado ? ' · <b style="color:var(--brasa)">esgotado</b>' : ''}</small></div>
+      <div class="c"><strong>${esc(p.nome)}</strong><small>${brl(p.preco)}${p.qtd_proteinas ? ` · escolhe ${p.qtd_proteinas > 1 ? 'até ' + p.qtd_proteinas + ' proteínas' : '1 proteína'}` : ''}${p.esgotado ? ' · <b style="color:var(--brasa)">esgotado</b>' : ''}</small></div>
       <div class="acoes">
         <span class="ordem-bt" role="group" aria-label="Posição de ${esc(p.nome)}">
           <button class="btn btn-l btn-pq" data-mover="${p.id}" data-dir="-1" title="Subir" ${todos.indexOf(p) === 0 ? 'disabled' : ''}>▲</button>
@@ -933,7 +934,7 @@ function renderProdutos() {
           <button class="btn btn-l btn-pq" data-mover="${p.id}" data-dir="1" title="Descer" ${todos.indexOf(p) === todos.length - 1 ? 'disabled' : ''}>▼</button>
         </span>
         <button class="btn btn-pq ${p.esgotado ? 'btn-s' : 'btn-l'}" data-prflag="${p.id}" data-campo="esgotado" data-v="${p.esgotado ? 0 : 1}">${p.esgotado ? 'Voltou' : 'Esgotou'}</button>
-        <label class="sw" title="Mostrar no cardápio"><input type="checkbox" data-prflag="${p.id}" data-campo="ativo" ${p.ativo ? 'checked' : ''} aria-label="Mostrar ${esc(p.nome)} no cardápio"><span></span></label>
+        <span class="sw-rot">${p.ativo ? 'No cardápio' : 'Escondido'}</span><label class="sw" title="Mostrar no cardápio"><input type="checkbox" data-prflag="${p.id}" data-campo="ativo" ${p.ativo ? 'checked' : ''} aria-label="Mostrar ${esc(p.nome)} no cardápio"><span></span></label>
         <button class="btn btn-l btn-pq" data-editar="${p.id}">Editar</button>
       </div></div>`).join('');
   }).join('');
@@ -1024,8 +1025,7 @@ $('#pArquivo').onchange = async e => {
 };
 $('#formProd').onsubmit = async e => {
   e.preventDefault();
-  const al = $('#pAlmoco').checked, no = $('#pNoite').checked;
-  if (!al && !no) { $('#prodErro').textContent = 'Marque pelo menos um turno.'; return; }
+  if (!$('#pAlmoco').checked && !$('#pNoite').checked) { $('#pAlmoco').checked = $('#pNoite').checked = true; }   // turno escondido: vale o dia todo
   const preco = numBR($('#pPreco').value);
   if (!$('#pPreco').value.trim() || preco < 0) { $('#prodErro').textContent = 'Informe o preço.'; return; }
   const btn = $('#btnSalvarProd'); btn.disabled = true; btn.textContent = 'Salvando…';
@@ -1035,7 +1035,7 @@ $('#formProd').onsubmit = async e => {
     for (const f of FOTOS) if (f.blob) { n++; btn.textContent = novas > 1 ? `Enviando foto ${n} de ${novas}…` : 'Enviando foto ao Drive…'; f.url = await B.enviarFoto(sess.pin, f.blob); delete f.blob; }
     const fotos = FOTOS.map(f => f.url).filter(Boolean), foto = fotos[0] || '';
     const p = { id: editando ? editando.id : '', nome: $('#pNome').value.trim(), descricao: $('#pDesc').value.trim(), preco,
-      categoria: $('#pCat').value.trim(), turnos: al && no ? [] : [al ? 'almoco' : 'noite'], qtd_proteinas: +$('#pProt').value,
+      categoria: $('#pCat').value.trim(), turnos: $('#pAlmoco').checked && $('#pNoite').checked ? [] : [$('#pAlmoco').checked ? 'almoco' : 'noite'], qtd_proteinas: +$('#pProt').value,
       sabores: $('#pSabores').value.split(',').map(s => s.trim()).filter(Boolean), opcao_titulo: $('#pOpTit').value.trim(), com_acomp: $('#pComAcomp').checked,
       preco_noite: $('#pPrecoNoite').value.trim() ? numBR($('#pPrecoNoite').value) : '', sabores_off: editando ? (editando.sabores_off || []) : [], conta_limite: $('#pLimite').checked,
       destaque: $('#pDestaque').checked, foto, fotos, ativo: editando ? editando.ativo : true, esgotado: editando ? editando.esgotado : false,

@@ -1,7 +1,7 @@
 /* MODO DEMONSTRAÇÃO — só é usado quando o config.js ainda não tem o link da planilha.
    Roda o mesmo motor da planilha (Code.gs) dentro do navegador, guardando os dados só neste aparelho. */
 (function () {
-  const CHAVE = 'demo_felipe_burguer_v3';
+  const CHAVE = 'demo_felipe_burguer_v4';
   let salvo = {}; try { salvo = JSON.parse(localStorage.getItem(CHAVE) || '{}'); } catch (e) {}
   const limpa = v => typeof v === 'string' && v.startsWith("'") ? v.slice(1) : (v === undefined || v === null ? '' : v);
   function Range(sh, r, c, nr, nc) { this.sh = sh; this.r = r; this.c = c; this.nr = nr || 1; this.nc = nc || 1; }
@@ -125,7 +125,7 @@ function setup() {
       ["Clássico da Casa (160g)", "Pão brioche, hambúrguer 160g, cheddar, coalho, alface, tomate, cebola caramelizada e molho da casa.", 35, "Hambúrgueres", "", 0, "", false, "", true, 3, ""],
       ["Bacon Burguer (160g)", "Pão brioche, hambúrguer 160g, cheddar, bacon em tiras e molho da casa.", 35, "Hambúrgueres", "", 0, "", false, "", false, 4, ""],
       ["Bacon Picante ou Barbecue (160g)", "Pão brioche, hambúrguer 160g, cheddar, bacon, cebola caramelizada e molho picante ou barbecue.", 35, "Hambúrgueres", "", 0, "Picante, Barbecue", false, "", false, 5, "Molho"],
-      ["Burguer da Casa (160g)", "Pão brioche, hambúrguer 160g, cheddar, coalho, bacon, ovo, cebola caramelizada e molho da casa.", 40, "Hambúrgueres", "", 0, "", false, "img/p/burguer.jpg", true, 6, ""],
+      ["Burguer da Casa (160g)", "Pão brioche, hambúrguer 160g, cheddar, coalho, bacon, ovo, cebola caramelizada e molho da casa.", 40, "Hambúrgueres", "", 0, "", false, "img/p/burguer-da-casa.jpg", true, 6, ""],
       ["Frango Desfiado (160g)", "Pão brioche, frango 160g, alface, tomate e molho da casa.", 28, "Hambúrgueres", "", 0, "", false, "", false, 7, ""],
       ["Bacon Burguer Doble (2x 160g)", "Pão brioche, duas carnes 160g, cheddar, bacon, cebola caramelizada e molho da casa.", 50, "Hambúrgueres", "", 0, "", false, "", true, 8, ""],
       ["Burguer Tropical (160g)", "Pão brioche, hambúrguer 160g, abacaxi, alface americana e tomate seco.", 40, "Hambúrgueres", "", 0, "", false, "", false, 9, ""],
@@ -978,6 +978,18 @@ function atualizarCardapioFelipe() {
       dados.push(r); novos++;
     }
   });
+  // fotos dos produtos (ficam na pasta img/p do site)
+  const fotos = {
+    'Bacon Burguer Doble (2x 160g)': 'img/p/burguer-doble.jpg',
+    'Burguer da Casa (160g)': 'img/p/burguer-da-casa.jpg',
+    'Bacon Burguer (160g)': 'img/p/bacon-burguer.jpg',
+    'Clássico da Casa (160g)': 'img/p/classico.jpg',
+    'Bacon Picante ou Barbecue (160g)': 'img/p/bacon-picante.jpg',
+    'Batata Carne do Sol e Cheddar 300g': 'img/p/batata-carne-sol.jpg',
+    'Isca de Filé Mignon (Talharim Artesanal)': 'img/p/massa-isca.jpg',
+    'Pizza Isca de Filé Mignon': 'img/p/pizza-isca.jpg'
+  };
+  dados.forEach(function (r) { if (fotos[r[c.nome]] && (!r[c.foto] || /^img\//.test(r[c.foto]))) r[c.foto] = fotos[r[c.nome]]; });
   if (dados.length) sh.getRange(2, 1, dados.length, cols.length).setValues(dados);
   const p = props_(), cfg = JSON.parse(p.getProperty('config') || '{}');
   cfg.categorias = ["Hambúrgueres", "Acompanhamentos", "Adicionais", "Pizzas", "Pizzas Doces", "Massas", "Drinks", "Doses", "Cervejas", "Sucos", "Bebidas"];
